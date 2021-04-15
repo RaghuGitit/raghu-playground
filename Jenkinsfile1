@@ -28,6 +28,11 @@ pipeline {
             }
         }
         stage("test"){
+            when {
+                expression {
+                    (BRANCH_NAME == 'master' || BRANCH_NAME == 'dev') && params.executeTests == true
+                }
+            }
             steps{
                 script{
                         gv.testApp()
