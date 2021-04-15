@@ -1,5 +1,8 @@
+def gv
+
 pipeline {
     agent any
+    //When u define params, you will see 'Build with Paramteters' instead of 'Build' in Jenkins
     parameters {
         string(name: 'VERSION', defaultValue: '', description: 'version to deploy')
         choice(name: 'VERSION_NBR', choices: ['1.1', '1.2', '1.3'], description: 'version')
@@ -10,38 +13,30 @@ pipeline {
         SERVER_CREDENTIALS = credentials('Cred1') //Cred1 is a Global cred added in Jenkins of kind Username with password
     }
     stages{
-        stage("build"){
-            //when {
-                //expression {
-                    //CODE_CHANGES == true
-                //}
-            //}
+        stage("init"){
             steps{
-                echo 'building app..'
-                echo "building version ${NEW_VERSION}"
-                echo "build number ${BUILD_NUMBER}" //BUILD_NUMBER is a jenkins env var
+                script {
+                    gv = load "script.groovy"
+                }
+            }
+        }
+        stage("build"){
+            steps{
+                script {
+                    gv.buildApp()
+                }
             }
         }
         stage("test"){
-            when {
-                expression {
-                    (BRANCH_NAME == 'master' || BRANCH_NAME == 'dev') && params.executeTests == true
+            script {
+                    gv.testApp()
                 }
-            }
-            steps{
-                echo 'testing app..'
-            }
         }
         stage("deploy"){
             steps{
-                echo 'deploying app..'
-                echo "deploying with credentials ${SERVER_CREDENTIALS}"
-                echo "deploying with credentials ${params.VERSION_NBR}"
-                //withCredentials([
-                    //usernamePassword(credentials: 'Cred1', usernameVariable: MYUSER, passwordVariable: MYPWD)
-                //]){
-                    //User MYUSER and MYPWD for any shell scripts
-                //}
+                script {
+                    gv.deployApp()
+                }
             }
         }
     }    
