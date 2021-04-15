@@ -2,12 +2,7 @@ def buildApp() {
     echo "building the application"
 }
 
-def testApp() {
-    when {
-        expression {
-            (BRANCH_NAME == 'master' || BRANCH_NAME == 'dev') && params.executeTests == true
-        }
-    }
+def testApp() {    
     steps{
         echo 'testing app..'
     }
